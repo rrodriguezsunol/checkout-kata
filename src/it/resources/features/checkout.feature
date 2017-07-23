@@ -1,7 +1,10 @@
 Feature: Checkout
 
-  Scenario: No items checkout
+  Scenario: Checkout different items
     Given we start a checkout transaction
-    And no item has been scanned
+    And item "D" is scanned
+    And item "A" is scanned
+    And item "B" is scanned
+    And item "C" is scanned
     When we ask for the total price
-    Then 0 is returned
+    Then the total price is 115p
