@@ -1,12 +1,18 @@
 package com.itv.checkout;
 
+import com.itv.checkout.domain.Item;
+import com.itv.checkout.repository.ItemRepository;
 import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by raimon on 23/07/2017.
@@ -14,7 +20,13 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 @RunWith(JUnitParamsRunner.class)
 public class CheckoutTest {
 
-    private final Checkout checkout = new Checkout();
+    private ItemRepository mockItemRepository = mock(ItemRepository.class);
+    private Checkout checkout;
+
+    @Before
+    public void initCheckout() {
+        checkout = new Checkout(mockItemRepository);
+    }
 
     @Test
     public void scanNoItemsReturnsZeroAsTotal() {
@@ -25,40 +37,41 @@ public class CheckoutTest {
     }
 
     @Test
-    @Parameters(method = "itemsPricing")
-    public void scanOneItemReturnsItemsPrice(String itemSku, int itemPrice) {
-        checkout.scan(itemSku);
+    public void scanOneItemReturnsItemsPrice() {
+        String itemSku = "item-1";
+        int itemPrice = 50;
+        given(mockItemRepository.getBySku(itemSku)).willReturn(Optional.of(new Item(itemSku, itemPrice)));
 
+        checkout.scan(itemSku);
         int actualTotal = checkout.getTotal();
 
         assertThat(actualTotal).isEqualTo(itemPrice);
     }
 
-    private Object[] itemsPricing() {
-        // Todo: now we have duplication between test and production code
-        return new Object[] {
-                new Object[] {"A", 50},
-                new Object[] {"B", 30},
-                new Object[] {"C", 20},
-                new Object[] {"D", 15}
-        };
-    }
-
     @Test
-    public void scanThrowsExceptionWhenSkuIsNull() {
-        Checkout checkout = new Checkout();
+    public void scanManyItemsReturnsSumOfItemsPrices() {
+        String itemOneSku = "item-1";
+        int itemOnePrice = 20;
+        given(mockItemRepository.getBySku(itemOneSku)).willReturn(Optional.of(new Item(itemOneSku, itemOnePrice)));
 
-        Throwable caughtException = catchThrowable(() -> checkout.scan(null));
+        String itemTwoSku = "item-2";
+        int itemTwoPrice = 40;
+        given(mockItemRepository.getBySku(itemTwoSku)).willReturn(Optional.of(new Item(itemTwoSku, itemTwoPrice)));
 
-        assertThat(caughtException).isExactlyInstanceOf(NullPointerException.class)
-                .hasMessage("itemSku cannot be null");
+        checkout.scan(itemOneSku);
+        checkout.scan(itemTwoSku);
+
+        int actualTotal = checkout.getTotal();
+
+        assertThat(actualTotal).isEqualTo(60);
     }
 
     @Test
     public void scanThrowsExceptionWhenNoItemWithSuchSkuExists() {
-        Checkout checkout = new Checkout();
+        String invalidSku = "invalid-sku";
+        given(mockItemRepository.getBySku(invalidSku)).willReturn(Optional.empty());
 
-        Throwable caughtException = catchThrowable(() -> checkout.scan("invalid-sku"));
+        Throwable caughtException = catchThrowable(() -> checkout.scan(invalidSku));
 
         assertThat(caughtException).isExactlyInstanceOf(IllegalArgumentException.class)
                 .hasMessage("No item with SKU 'invalid-sku' exists");
