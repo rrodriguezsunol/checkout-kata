@@ -1,6 +1,7 @@
 package com.itv.checkout;
 
 import com.itv.checkout.domain.Item;
+import com.itv.checkout.domain.SpecialOffer;
 import com.itv.checkout.repository.ItemRepository;
 
 import java.util.ArrayList;
@@ -9,27 +10,31 @@ import java.util.List;
 /**
  * Responsibilities:
  * 1. it stores scanned items.
- * 2. it calculates the total by adding the price of each item.
+ * 2. it calculates the total amout by:
+ *      a. adding the price of each item together.
+ *      b. subtracting the discount amounts of the offers from the total
  *
  * Created by raimon on 23/07/2017.
  */
 public class Checkout {
     private ItemRepository itemRepository;
+    private SpecialOffersProcessor specialOffersProcessor;
     private List<Item> scannedItems;
 
-    public Checkout(ItemRepository itemRepository) {
+    public Checkout(ItemRepository itemRepository, SpecialOffersProcessor specialOffersProcessor) {
         this.itemRepository = itemRepository;
+        this.specialOffersProcessor = specialOffersProcessor;
         scannedItems = new ArrayList<>();
     }
 
     public int getTotal() {
-        int total = 0;
+        int totalItemPrices = scannedItems.stream().mapToInt(Item::getPrice).sum();
 
-        for (Item item : scannedItems) {
-            total += item.getPrice();
-        }
+        List<SpecialOffer> applicableOffers = specialOffersProcessor.getAllApplicable(scannedItems);
 
-        return total;
+        int discounts = applicableOffers.stream().mapToInt(SpecialOffer::getDiscountAmount).sum();
+
+        return totalItemPrices - discounts;
     }
 
     public void scan(String itemSku) {

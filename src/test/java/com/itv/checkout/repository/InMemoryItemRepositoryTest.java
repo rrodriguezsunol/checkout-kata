@@ -1,8 +1,8 @@
 package com.itv.checkout.repository;
 
-import org.junit.Test;
-
 import java.util.HashMap;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -21,5 +21,4 @@ public class InMemoryItemRepositoryTest {
         assertThat(caughtException).isExactlyInstanceOf(NullPointerException.class)
                 .hasMessage("itemSku cannot be null");
     }
-
 }
