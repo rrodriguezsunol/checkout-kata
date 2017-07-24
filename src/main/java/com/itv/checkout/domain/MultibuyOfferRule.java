@@ -10,14 +10,14 @@ import java.util.stream.Stream;
  */
 public class MultibuyOfferRule {
     private final Item discountedItem;
-    private final int numberOfItems;
+    private final int requiredNumberOfItems;
     private final int discountAmount;
 
-    public MultibuyOfferRule(Item discountedItem, int numberOfItems, int discountAmount) {
+    public MultibuyOfferRule(Item discountedItem, int requiredNumberOfItems, int discountAmount) {
         Objects.requireNonNull(discountedItem, "discountedItem cannot be null");
 
-        if (numberOfItems < 2) {
-            throw new IllegalArgumentException("numberOfItems cannot be less than 2");
+        if (requiredNumberOfItems < 2) {
+            throw new IllegalArgumentException("requiredNumberOfItems cannot be less than 2");
         }
 
         if (discountAmount < 1) {
@@ -25,7 +25,7 @@ public class MultibuyOfferRule {
         }
 
         this.discountedItem = discountedItem;
-        this.numberOfItems = numberOfItems;
+        this.requiredNumberOfItems = requiredNumberOfItems;
         this.discountAmount = discountAmount;
     }
 
@@ -36,7 +36,7 @@ public class MultibuyOfferRule {
     public List<SpecialOffer> createOffers(List<Item> items) {
         long occurrencesOfDiscountedItem = items.stream().filter(discountedItem::equals).count();
 
-        long numberOfSpecialOffers = occurrencesOfDiscountedItem / numberOfItems;
+        long numberOfSpecialOffers = occurrencesOfDiscountedItem / requiredNumberOfItems;
 
         return Stream.generate(() -> new SpecialOffer(discountAmount))
                 .limit(numberOfSpecialOffers)

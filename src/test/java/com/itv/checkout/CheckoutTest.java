@@ -1,5 +1,7 @@
 package com.itv.checkout;
 
+import java.util.Optional;
+
 import com.itv.checkout.domain.Item;
 import com.itv.checkout.domain.SpecialOffer;
 import com.itv.checkout.repository.ItemRepository;
@@ -7,8 +9,6 @@ import junitparams.JUnitParamsRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -127,8 +127,4 @@ public class CheckoutTest {
 
         assertThat(actualTotal).isEqualTo(25);
     }
-
-    // Todo: add edge case test when the total price is greater than MAX INTEGER
-
-    // Todo: add edge case test when the total discount is greater than MAX INTEGER
 }

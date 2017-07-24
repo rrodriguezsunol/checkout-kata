@@ -1,8 +1,8 @@
 package com.itv.checkout.domain;
 
-import org.junit.Test;
-
 import java.util.List;
+
+import org.junit.Test;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -35,7 +35,7 @@ public class MultibuyOfferRuleTest {
         Throwable caughtException = catchThrowable(() -> new MultibuyOfferRule(itemWithOffer, 1, 25));
 
         assertThat(caughtException).isExactlyInstanceOf(IllegalArgumentException.class)
-                .hasMessage("numberOfItems cannot be less than 2");
+                .hasMessage("requiredNumberOfItems cannot be less than 2");
     }
 
     @Test
